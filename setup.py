@@ -9,7 +9,7 @@ config = {
     'url': 'http://github.com/jzellman/webpy-crust',
     'download_url': 'http://github.com/jzellman/webpy-crust',
     'author_email': 'jzellman@gmail.com',
-    'version': '0.0.1',
+    'version': '0.0.2',
     'install_requires': ['web.py', 'nose'],
     'packages': ['crust'],
     'scripts': [],
