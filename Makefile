@@ -10,6 +10,6 @@ test:
 	. .env/bin/activate; nosetests -s $(TESTS)
 
 lint:
-	. .env/bin/activate; flake8 crust/ tests/ 
+	. .env/bin/activate; flake8 --exclude=crust/__init__.py crust/ tests/
 
 release: test lint
