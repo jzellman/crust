@@ -3,26 +3,20 @@ from uuid import uuid4
 import web
 
 
+def current_user_builder(session, id_field, user_finder):
+    def current_user(reload=False):
+        user_id = getattr(session, id_field, None)
+        if not user_id:
+            return None
+        if 'user' in web.ctx and not reload:
+            return web.ctx.user
+        else:
+            web.ctx.user = user_finder(user_id)
+            return web.ctx.user
+    return current_user
+
+
 def AuthorizationProcessor(session, user_field="user_id", require_login=None):
-    """
-    Authorization processor useful for authorizing URL paths.
-
-    Example:
-
-        session = web.session.Session(app, session_store,
-                                      initializer={"user_id": None})
-
-        app = web.application(urls, globals())
-
-        def require_login_for_account(path):
-            return path.startswith("/account")
-
-        app.add_processor(
-            AuthorizationProcessor(session,
-                                   require_login=require_login_for_account))
-
-    This will cause authorization for any URL starting with "/account"
-    """
     def auth_app_processor(handle):
         path = web.ctx.path
         if require_login and require_login(path):
@@ -73,6 +67,40 @@ class Protector:
         self.user_loader = user_loader
         self.user_field = kwargs.get("user_field", "user_id")
         self.login_path = kwargs.get("login_path", "/login")
+
+    def build_auth_processor(self, require_login):
+        """
+        returns an authorization processor which can be used
+        for for authorizing URL paths.
+
+        Example:
+            session = web.session.Session(app, session_store,
+                                          initializer={"user_id": None})
+
+            app = web.application(urls, globals())
+
+            def current_user():
+                if session.user_id:
+                    # load user
+                    return load_user
+                else:
+                    return None
+
+            def require_login_for_account(path):
+                return path.startswith("/account")
+
+            protector = Protector(session, curent_user)
+
+            app.add_processor(protector.build_auth_processor(require_login))
+
+        This will cause authorization for any URL starting with "/account"
+        """
+        def auth_app_processor(handle):
+            path = web.ctx.path
+            if require_login and require_login(path):
+                self._verify_session_user()
+            return handle()
+        return auth_app_processor
 
     def login_required(self, f):
         def decorated(*args, **kwargs):
