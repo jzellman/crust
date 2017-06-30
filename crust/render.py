@@ -1,3 +1,7 @@
+import json
+
+import web
+
 class RenderPartial:
     """
         Looks for templates starting with an underscore.
@@ -20,3 +24,17 @@ class RenderPartial:
 
         template_name = '_' + template_name
         return getattr(renderer, template_name)(*args, **kwargs)
+
+
+def render_csv(csv, filename):
+    web.header('Content-Type', 'text/csv')
+    web.header('Content-Disposition',
+               'attachment;filename=%s' % filename)
+    return csv
+
+
+def render_json(message=None, **attrs):
+    if message:
+        attrs['message'] = message
+    web.header('Content-Type', 'application/json')
+    return json.dumps(attrs)
