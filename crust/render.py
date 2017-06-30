@@ -2,6 +2,9 @@ import json
 
 import web
 
+import util
+
+
 class RenderPartial:
     """
         Looks for templates starting with an underscore.
@@ -23,7 +26,8 @@ class RenderPartial:
             renderer = getattr(renderer, directory)
 
         template_name = '_' + template_name
-        return getattr(renderer, template_name)(*args, **kwargs)
+        with util.timeit("Render Partial: %s" % template_name):
+            return getattr(renderer, template_name)(*args, **kwargs)
 
 
 def render_csv(csv, filename):
