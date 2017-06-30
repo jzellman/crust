@@ -30,3 +30,11 @@ def safedatefmt(d, fmt=None):
 
 def boolfmt(b, yes="Yes", no="No"):
     return yes if b else no
+
+
+def first(lst, default=None):
+    "Returns first element of a list or default"
+    try:
+        return lst[0]
+    except IndexError:
+        return default
