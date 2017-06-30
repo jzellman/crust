@@ -1,5 +1,7 @@
 import web
 
+from collections import defaultdict
+
 
 class RedisStore(web.session.Store):
     def __init__(self, redis, key_prefix="sessions_", timeout=None):
@@ -36,3 +38,37 @@ class RedisStore(web.session.Store):
     def cleanup(self, timeout):
         # redis handles this
         pass
+
+
+def Session(app, session_store, initializer=None):
+    initializer = initializer or {'flash': defaultdict(list),
+                                  'user_id': None}
+
+    if web.config.get('_session') is None:
+        session = web.session.Session(app, session_store, initializer)
+        web.config._session = session
+    else:
+        session = web.config._session
+    return session
+
+
+class Flash:
+    def __init__(self, session):
+        self.session = session
+
+    def add(self, group, *messages):
+        for message in messages:
+            self.session.flash[group].append(message)
+
+    def messages(self, group=None):
+        if not hasattr(web.ctx, 'flash'):
+            web.ctx.flash = self.session.flash
+            self.session.flash = defaultdict(list)
+        if group:
+            return web.ctx.flash.get(group, [])
+        else:
+            return web.ctx.flash
+
+    def reset(self):
+        for k in self.session.flash.keys():
+            self.session.flash.pop(k)
