@@ -7,6 +7,7 @@ import util
 def time_request(handler):
     """
     Displays time it took to process a request.
+
     Usage:
         add.add_processor(time_request)
     """
@@ -17,6 +18,7 @@ def time_request(handler):
 def log_bad_requests(user_id_fun=None):
     """
     logs all 4xx and 5xx errors using logger library.
+
     Usage:
         app.add_processor(web.unloadhook(
             log_bad_requests(lambda: current_user()))

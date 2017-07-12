@@ -4,6 +4,17 @@ from collections import defaultdict
 
 
 class RedisStore(web.session.Store):
+    """
+    Redis backed web session Store
+    Usage:
+        >>> import redis
+        >>> r = redis.StrictRedis()
+        >>> from crust import session
+        >>> session_store = session.RedisStore(redis)
+        >>> import web
+        >>> app = web.application({}, globals())
+        >>> session = web.session.Session(app, session_store)
+    """
     def __init__(self, redis, key_prefix="sessions_", timeout=None):
         self.redis = redis
         self.key_prefix = key_prefix
@@ -41,6 +52,15 @@ class RedisStore(web.session.Store):
 
 
 def Session(app, session_store, initializer=None):
+    """
+    Wrapper for allowing session store to be reloaded in dev environment.
+    Usage:
+        >>> from crust import session as sessionlib
+        >>> import web
+        >>> app = web.application({}, globals())
+        >>> session_store = web.session.DiskStore('sessions')
+        >>> session = sessionlib.Session(app, session_store)
+    """
     initializer = initializer or {'flash': defaultdict(list),
                                   'user_id': None}
 
@@ -53,14 +73,37 @@ def Session(app, session_store, initializer=None):
 
 
 class Flash:
+    """
+    Flash message handler.
+    Usage:
+        >>> import web
+        >>> app = web.application({}, globals())
+        >>> from crust import session as sessionLib
+        >>> session_store = web.session.DiskStore('sessions')
+        >>> session = sessionLib.Session(app, session_store)
+        >>> flash = sessionLib.Flash(session)
+        >>> flash.add('success', 'User updated.')
+        >>> for m in flash.messages('success'):
+        ...     print m
+        User updated.
+    """
     def __init__(self, session):
         self.session = session
 
     def add(self, group, *messages):
+        """
+        Add a flash message
+        param: group - message group
+        param: *messages - list of messages to be stored with group
+        """
         for message in messages:
             self.session.flash[group].append(message)
 
     def messages(self, group=None):
+        """
+        Returns list of messages with specified group
+        param: group - name of group containing messages.
+        """
         if not hasattr(web.ctx, 'flash'):
             web.ctx.flash = self.session.flash
             self.session.flash = defaultdict(list)
@@ -70,5 +113,8 @@ class Flash:
             return web.ctx.flash
 
     def reset(self):
+        """
+        Resets all flash messages
+        """
         for k in self.session.flash.keys():
             self.session.flash.pop(k)

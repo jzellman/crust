@@ -33,33 +33,27 @@ class Protector:
     """
     Contains a set of common decorators useful for action level authorization.
 
-    Example:
+    Usage:
+        >>> import web
+        >>> def current_user():
+        ...     return db.load_some_user()
+        ...
+        >>> session = web.session.Session(app, session_store,
+        ...     initializer={'user_id': None})
+        >>> from crust import Protector
+        >>> protect = Protector(session, current_user)
+        >>> template_funs = { 'csrf_token': protect.csrf_token }
+        >>> render = web.template.render('templates/', globals=template_funs)
+        >>> class account:
+        ...     @protect.login_required
+        ...     def GET(self):
+        ...         pass
 
-        def current_user():
-            return db.load_some_user()
+    Then in the account form template
 
-        session = web.session.Session(app, session_store,
-                                      initializer={"user_id": None})
-
-        protect = Protector(session, current_user)
-
-        template_funs = { 'csrf_token': protect.csrf_token }
-
-        render = web.template.render('templates/', globals=template_funs)
-
-        class account:
-            @protect.login_required
-            def GET(self):
-                pass
-
-            @protect.csrf_protected
-            def POST(self):
-
-        Then in the account form template
-
-        <form method="POST">
-            <input type="hidden" name="csrf-token" value="$csrf_token()">
-        </form>
+    <form method="POST">
+        <input type="hidden" name="csrf-token" value="$csrf_token()">
+    </form>
     """
 
     def __init__(self, session, user_loader, **kwargs):
@@ -73,25 +67,21 @@ class Protector:
         returns an authorization processor which can be used
         for for authorizing URL paths.
 
-        Example:
-            session = web.session.Session(app, session_store,
-                                          initializer={"user_id": None})
-
-            app = web.application(urls, globals())
-
-            def current_user():
-                if session.user_id:
-                    # load user
-                    return load_user
-                else:
-                    return None
-
-            def require_login_for_account(path):
-                return path.startswith("/account")
-
-            protector = Protector(session, curent_user)
-
-            app.add_processor(protector.build_auth_processor(require_login))
+        Usage:
+            >>> session = web.session.Session(app, session_store,
+            ...     initializer={"user_id": None})
+            >>> app = web.application(urls, globals())
+            >>> def current_user():
+            ...    if session.user_id:
+            ...        # load user
+            ...        return load_user
+            ...    else:
+            ...        return None
+            >>> def require_login_for_account(path):
+            ...    return path.startswith("/account")
+            >>> protector = Protector(session, curent_user)
+            >>> app.add_processor(
+            ...     protector.build_auth_processor(require_login))
 
         This will cause authorization for any URL starting with "/account"
         """
@@ -126,6 +116,15 @@ class Protector:
                 raise web.seeother(self.login_path)
 
     def csrf_protected(self, f):
+	"""
+        decorator for preventing CSRF attacks.
+
+        Usage:
+            >>> @csrf_protected
+            ... def GET(self):
+            ...     #handle web.input()
+
+        """
         def decorated(*args, **kwargs):
             inp = web.input()
             stored_token = self.session.pop('csrf_token', None)
@@ -139,6 +138,15 @@ class Protector:
         return decorated
 
     def csrf_token(self):
+	"""
+        Used in conjunction with csrf_protected. Within your form add
+        an input containing the token:
+            >>> def GET(self):
+            ...     return '<form method="POST">' +
+            ...              '<input type="hidden" name="csrf-token" ' +
+            ...              'value="$csrf_token()">' +
+            ...            ' </form>'
+        """
         if 'csrf_token' not in self.session:
             self.session.csrf_token = uuid4().hex
         return self.session.csrf_token
