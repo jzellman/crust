@@ -2,6 +2,7 @@ from context import (assert_equals, assert_false, assert_is_not_none,
                      assert_true, raises)
 
 from crust import session
+import web
 
 
 class RedisTester:
@@ -63,3 +64,16 @@ def test_in_():
 
     assert_true('a' in sessions)
     assert_false('b' in sessions)
+
+
+def test_flash():
+    app = web.application({}, {})
+    store = web.session.DiskStore('sessions')
+    flash = session.Flash(session.Session(app, store))
+    assert_equals([], flash.messages('test'))
+
+    # reset web.ctx flash. This simulates processing a new request.
+    web.ctx.pop('flash', None)
+    flash.add('test', 'foo')
+    assert_equals(['foo'], flash.session.flash['test'])
+    assert_equals(['foo'], flash.messages('test'))

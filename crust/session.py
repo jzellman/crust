@@ -90,12 +90,17 @@ class Flash:
     def __init__(self, session):
         self.session = session
 
+    def _init_flash(self, force=False):
+        if not hasattr(self.session, 'flash') or force:
+            self.session.flash = defaultdict(list)
+
     def add(self, group, *messages):
         """
         Add a flash message
         param: group - message group
         param: *messages - list of messages to be stored with group
         """
+        self._init_flash()
         for message in messages:
             self.session.flash[group].append(message)
 
@@ -104,9 +109,10 @@ class Flash:
         Returns list of messages with specified group
         param: group - name of group containing messages.
         """
+        self._init_flash()
         if not hasattr(web.ctx, 'flash'):
             web.ctx.flash = self.session.flash
-            self.session.flash = defaultdict(list)
+            self._init_flash(True)
         if group:
             return web.ctx.flash.get(group, [])
         else:
@@ -116,5 +122,4 @@ class Flash:
         """
         Resets all flash messages
         """
-        for k in self.session.flash.keys():
-            self.session.flash.pop(k)
+        self._init_flash(True)
