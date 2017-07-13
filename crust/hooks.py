@@ -4,6 +4,10 @@ import web
 import util
 
 
+def _time_header(time):
+    web.header('X-Request-Time', time)
+
+
 def time_request(handler):
     """
     Displays time it took to process a request.
@@ -11,7 +15,7 @@ def time_request(handler):
     Usage:
         add.add_processor(time_request)
     """
-    with util.timeit('Request Time %s' % web.ctx.path):
+    with util.timeit('Request Time %s' % web.ctx.path, _time_header):
         return handler()
 
 

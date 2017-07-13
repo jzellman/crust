@@ -4,11 +4,13 @@ from contextlib import contextmanager
 
 
 @contextmanager
-def timeit(label=""):
+def timeit(label="", callback=None):
     start = time.time()
     yield
-    end = time.time()
-    logging.debug('%.3f : %s' % (round(end-start, 3), str(label)))
+    delta = time.time() - start
+    logging.debug('%.3f : %s' % (round(delta, 3), str(label)))
+    if callback:
+        callback(delta)
 
 
 def wrap_time(label):
