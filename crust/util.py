@@ -8,13 +8,13 @@ def timeit(label=""):
     start = time.time()
     yield
     end = time.time()
-    logging.info('%s : %s' % (round(end-start, 2), str(label)))
+    logging.debug('%.3f : %s' % (round(end-start, 3), str(label)))
 
 
 def wrap_time(label):
     def wrap(f):
         def decorated(*args, **kwargs):
-            with timeit("%s -- %s" % (label, locals())):
+            with timeit(label):
                 return f(*args, **kwargs)
         return decorated
     return wrap
