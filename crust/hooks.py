@@ -19,13 +19,12 @@ def time_request(handler):
         return handler()
 
 
-def log_bad_requests(user_id_fun=None):
+def log_bad_requests(app, user_id_fun=None):
     """
-    logs all 4xx and 5xx errors using logger library.
+    logs all 4xx and 5xx errors using logging library.
 
     Usage:
-        app.add_processor(web.unloadhook(
-            log_bad_requests(lambda: current_user()))
+        log_bad_requests(app, lambda: current_user())
     """
     def wrapped():
         status = web.ctx.status
@@ -38,4 +37,4 @@ def log_bad_requests(user_id_fun=None):
                      ('query', web.ctx.query)]
             details = " ".join("%s=%s" % (k, v) for k, v in attrs)
             logging.error(details)
-    return wrapped
+    app.add_processor(web.unloadhook(wrapped))
