@@ -1,3 +1,4 @@
+import functools
 import logging
 import time
 from contextlib import contextmanager
@@ -15,6 +16,7 @@ def timeit(label="", callback=None):
 
 def wrap_time(label):
     def wrap(f):
+        @functools.wraps(f)
         def decorated(*args, **kwargs):
             with timeit(label):
                 return f(*args, **kwargs)
