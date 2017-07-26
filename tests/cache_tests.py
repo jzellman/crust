@@ -14,11 +14,12 @@ def test_none_cache():
     assert_equals(2, c.get_or_put("foo", lambda: 1 + 1))
     c.delete('a')
     c.delete_all()
+    assert_equals([], c.keys())
 
 
 class TestMemoryCache:
     def setUp(self):
-        self.cache = cache.MemoryCache()
+        self.cache = cache.MemoryCache(prefix='cache_test')
 
     def test_missing_key(self):
         assert_is_none(self.cache.get('bar'))
@@ -46,6 +47,12 @@ class TestMemoryCache:
         assert_equals(2, self.cache.get('bar'))
         self.cache.delete_all()
         assert_is_none(self.cache.get('bar'))
+
+    def test_keys(self):
+        self.cache.put('bar', 2)
+        assert_equals(['bar'], self.cache.keys())
+        self.cache.delete('bar')
+        assert_equals([], self.cache.keys())
 
     def test_max_age(self):
         self.cache.put('bar', 1)
@@ -80,7 +87,7 @@ class TestRedisCache(TestMemoryCache):
             import redis as redislib
             self.redis = redislib.StrictRedis()
             self.redis.flushall()
-            self.cache = cache.RedisCache(self.redis)
+            self.cache = cache.RedisCache(self.redis, prefix='cache_test')
         except ImportError:
             print "Please install redis to test Redis cache implemntation"
             self.redis = None

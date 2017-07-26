@@ -69,6 +69,10 @@ class _BaseCache(object):
         "delete all keys in the cache"
         raise NotImplementedError()
 
+    def keys(self):
+        "returns keys for all items in the cache"
+        return map(self._to_short_key, self._get_keys())
+
     @util.wrap_time("Cache._get")
     def _get(self, key):
         with util.timeit("Cache.con.get"):
@@ -94,6 +98,9 @@ class _BaseCache(object):
     def _make_key(self, key):
         return u'{}_{}'.format(self.prefix,
                                self._serialize(key))
+
+    def _to_short_key(self, key):
+        return self._deserialize(key.replace('{}_'.format(self.prefix), '', 1))
 
     @util.wrap_time('Cache._serialize')
     def _serialize(self, key):
@@ -126,6 +133,9 @@ class MemoryCache(_BaseCache):
             if key.startswith(self.prefix):
                 self._do_delete(key)
 
+    def _get_keys(self):
+        return self.cache.keys()
+
 
 class RedisCache(_BaseCache):
     """
@@ -155,6 +165,9 @@ class RedisCache(_BaseCache):
         if matches:
             self.con.delete(*matches)
 
+    def _get_keys(self):
+        return [k for k in self.con.keys(self.prefix + '*')]
+
 
 class NoneCache:
     """
@@ -176,6 +189,9 @@ class NoneCache:
 
     def delete_all(self):
         pass
+
+    def keys(self):
+        return []
 
 
 class CacheDecorator(object):
