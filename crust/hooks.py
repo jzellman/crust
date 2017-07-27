@@ -1,7 +1,6 @@
-import logging
 import web
 
-import util
+from . import logger, util
 
 
 def _time_header(time):
@@ -36,5 +35,5 @@ def log_bad_requests(app, user_id_fun=None):
                      ('path', web.ctx.path),
                      ('query', web.ctx.query)]
             details = " ".join("%s=%s" % (k, v) for k, v in attrs)
-            logging.error(details)
+            logger.error(details)
     app.add_processor(web.unloadhook(wrapped))

@@ -2,8 +2,7 @@ import sys
 import cPickle
 from datetime import datetime
 
-import logging
-import util
+from . import logger, util
 
 
 class _Value:
@@ -81,7 +80,7 @@ class _BaseCache(object):
         if v is None:
             return None
         if self.debug:
-            logging.debug("Cache.sizeof %s" % sys.getsizeof(v))
+            logger.debug("Cache.sizeof %s" % sys.getsizeof(v))
         with util.timeit("Cache.pickle_load"):
             return self._deserialize(v)
 

@@ -1,7 +1,8 @@
 import functools
-import logging
 import time
 from contextlib import contextmanager
+
+from . import logger
 
 
 @contextmanager
@@ -9,7 +10,7 @@ def timeit(label="", callback=None):
     start = time.time()
     yield
     delta = time.time() - start
-    logging.debug('%.3f : %s' % (round(delta, 3), str(label)))
+    logger.debug('%.3f : %s' % (round(delta, 3), str(label)))
     if callback:
         callback(delta)
 

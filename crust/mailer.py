@@ -1,6 +1,6 @@
-import logging
-
 import web
+
+from . import logger
 
 
 # TODO - does not handle attachments
@@ -16,7 +16,7 @@ class DebugMailer:
                             'from_address': from_address,
                             'subject': subject,
                             'message': message})
-        logging.debug("Sending message: %s" % mail)
+        logger.debug("Sending message: %s" % mail)
         self.messages.append(mail)
         return mail
 

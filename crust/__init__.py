@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
+
 from .crypt import SimpleCryptor, Bcryptor
 from .mailer import debugmail, sendmail
 from .session import Session, Flash, RedisStore
