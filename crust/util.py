@@ -43,3 +43,14 @@ def first(lst, default=None):
         return lst[0]
     except IndexError:
         return default
+
+
+def partition(fun, lst):
+    " Returns 2 lists, list 1 where fun is True, list 2 where fun is False"
+    match, nomatch = [], []
+    for el in lst:
+        if fun(el):
+            match.append(el)
+        else:
+            nomatch.append(el)
+    return match, nomatch

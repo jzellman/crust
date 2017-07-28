@@ -42,3 +42,11 @@ def test_first():
     assert_equals(0, util.first(xrange(3)))
     assert_equals('default', util.first([], 'default'))
     assert_equals(None, util.first([]))
+
+
+def test_partition():
+    lst = [1, 2, 3]
+    assert_equals(([2], [1, 3]), util.partition(lambda o: o % 2 == 0, lst))
+    assert_equals(([1, 3], [2]), util.partition(lambda o: o % 2 == 1, lst))
+    assert_equals(([], [1, 2, 3]), util.partition(lambda o: o > 10, lst))
+    assert_equals(([1, 2, 3], []), util.partition(lambda o: o < 10, lst))
