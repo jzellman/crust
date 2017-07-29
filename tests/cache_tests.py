@@ -17,10 +17,7 @@ def test_none_cache():
     assert_equals([], c.keys())
 
 
-class TestMemoryCache:
-    def setUp(self):
-        self.cache = cache.MemoryCache(prefix='cache_test')
-
+class BaseCacheTest:
     def test_missing_key(self):
         assert_is_none(self.cache.get('bar'))
 
@@ -55,8 +52,9 @@ class TestMemoryCache:
         assert_equals([], self.cache.keys())
 
     def test_max_age(self):
-        self.cache.put('bar', 1)
-        assert_equals(2, self.cache.get_or_put('bar', lambda: 2, -1))
+        self.cache.put('bar', 1, .001)
+        time.sleep(.01)
+        assert_equals(2, self.cache.get_or_put('bar', lambda: 2, .001))
 
     def test_complex_key(self):
         key = {"foo": "bar"}
@@ -81,7 +79,12 @@ class TestMemoryCache:
         assert_equals(2, tester.cached())
 
 
-class TestRedisCache(TestMemoryCache):
+class TestMemoryCache(BaseCacheTest):
+    def setUp(self):
+        self.cache = cache.MemoryCache(prefix='cache_test')
+
+
+class TestRedisCache(BaseCacheTest):
     def setUp(self):
         try:
             import redis as redislib
