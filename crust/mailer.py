@@ -16,6 +16,7 @@ class DebugMailer:
                             'from_address': from_address,
                             'subject': subject,
                             'message': message})
+        mail.update(kw)
         logger.debug("Sending message: %s" % mail)
         self.messages.append(mail)
         return mail
