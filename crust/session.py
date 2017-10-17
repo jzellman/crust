@@ -104,7 +104,20 @@ class Flash:
         for message in messages:
             self.session.flash[group].append(message)
 
-    def messages(self, group=None):
+    def now(self, group, *messages):
+        """
+        Add flash messages for current request only. Won't be stored
+        in session or carried over between requests.
+        param: group - message group
+        param: *messages - list of messages to be stored with group
+        """
+        if 'flash_now' not in web.ctx:
+            web.ctx.flash_now = defaultdict(list)
+
+        for message in messages:
+            web.ctx.flash_now[group].append(message)
+
+    def messages(self, group):
         """
         Returns list of messages with specified group
         param: group - name of group containing messages.
@@ -112,14 +125,13 @@ class Flash:
         self._init_flash()
         if not hasattr(web.ctx, 'flash'):
             web.ctx.flash = self.session.flash
+
+            # Add any now messages into the contextually stored flash
+            for now_group, messages in web.ctx.pop('flash_now', {}).items():
+                web.ctx.flash[now_group].extend(messages)
+
             self._init_flash(True)
         if group:
             return web.ctx.flash.get(group, [])
         else:
             return web.ctx.flash
-
-    def reset(self):
-        """
-        Resets all flash messages
-        """
-        self._init_flash(True)

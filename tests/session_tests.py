@@ -75,5 +75,21 @@ def test_flash():
     # reset web.ctx flash. This simulates processing a new request.
     web.ctx.pop('flash', None)
     flash.add('test', 'foo')
+    flash.add('error', 'biz')
+    flash.now('error', 'baz')
+
     assert_equals(['foo'], flash.session.flash['test'])
+    assert_equals(['biz'], flash.session.flash['error'])
+    assert_equals(['baz'], web.ctx.flash_now['error'])
+
     assert_equals(['foo'], flash.messages('test'))
+    assert_equals(['biz', 'baz'], flash.messages('error'))
+
+    # reset web.ctx flash. This simulates processing a new request.
+    web.ctx.pop('flash', None)
+    flash.now('success', 'logged out')
+    assert_equals(['logged out'], flash.messages('success'))
+    # make sure it stays in the context even though it's a now message
+    assert_equals(['logged out'], flash.messages('success'))
+    # make sure it's not stored in the session
+    assert_equals([], flash.session.flash['success'])
