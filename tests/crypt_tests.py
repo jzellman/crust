@@ -1,4 +1,4 @@
-from context import assert_equals, assert_true, assert_false
+from .context import assert_equals, assert_true, assert_false
 
 from crust import SimpleCryptor, Bcryptor
 

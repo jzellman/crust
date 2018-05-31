@@ -14,5 +14,4 @@ class Bcryptor(SimpleCryptor):
         return bcrypt.hashpw(word.encode('utf-8'), bcrypt.gensalt())
 
     def is_crypted(self, word, crypted):
-        crypted = crypted.encode('utf-8')
         return bcrypt.hashpw(word.encode('utf-8'), crypted) == crypted

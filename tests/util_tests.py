@@ -1,6 +1,6 @@
 import datetime
 
-from context import assert_equals
+from .context import assert_equals
 
 from crust import util
 
@@ -39,7 +39,7 @@ def test_wrap_time():
 
 def test_first():
     assert_equals(1, util.first([1, 2, 3]))
-    assert_equals(0, util.first(xrange(3)))
+    assert_equals(0, util.first(range(3)))
     assert_equals('default', util.first([], 'default'))
     assert_equals(None, util.first([]))
 

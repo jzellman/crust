@@ -116,7 +116,7 @@ class Protector:
                 raise web.seeother(self.login_path)
 
     def csrf_protected(self, f):
-	"""
+        """
         decorator for preventing CSRF attacks.
 
         Usage:
@@ -138,14 +138,14 @@ class Protector:
         return decorated
 
     def csrf_token(self):
-	"""
+        """
         Used in conjunction with csrf_protected. Within your form add
         an input containing the token:
-            >>> def GET(self):
-            ...     return '<form method="POST">' +
-            ...              '<input type="hidden" name="csrf-token" ' +
-            ...              'value="$csrf_token()">' +
-            ...            ' </form>'
+        >>> def GET(self):
+        ...     return '<form method="POST">' +
+        ...              '<input type="hidden" name="csrf-token" ' +
+        ...              'value="$csrf_token()">' +
+        ...            ' </form>'
         """
         if 'csrf_token' not in self.session:
             self.session.csrf_token = uuid4().hex

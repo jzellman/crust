@@ -34,7 +34,7 @@ class RedisStore(web.session.Store):
         data = self.redis.get(key)
         if data:
             self._update_expire(key)
-            return self.decode(data)
+            return self.decode(bytes(data))
         else:
             raise KeyError(key)
 

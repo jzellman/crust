@@ -2,7 +2,7 @@ import json
 
 import web
 
-import util
+from . import util
 
 
 class RenderPartial:

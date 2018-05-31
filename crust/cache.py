@@ -1,5 +1,15 @@
 import sys
-import cPickle
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
+try:
+    unicode
+except NameError:
+    unicode = str
+
 from datetime import datetime
 
 from . import logger, util
@@ -108,7 +118,7 @@ class RedisCache:
         if self.debug:
             logger.debug("Cache.sizeof %s" % sys.getsizeof(value))
         with util.timeit("Cache.pickle_load"):
-            return cPickle.loads(value)
+            return pickle.loads(value)
 
     def put(self, key, value, max_age=None):
         "stores the specified value in the cache. Can be retrieved by key."
@@ -116,7 +126,7 @@ class RedisCache:
             age_in_ms = int(round(1000 * max_age))
         else:
             age_in_ms = None
-        serialized = cPickle.dumps(value)
+        serialized = pickle.dumps(value)
         self.con.set(self._make_key(key), serialized, px=age_in_ms)
         return value
 

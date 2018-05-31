@@ -1,7 +1,9 @@
+from __future__ import print_function
+
 import time
 from datetime import datetime
 
-from context import assert_is_none, assert_equals
+from .context import assert_is_none, assert_equals
 
 from crust import cache
 
@@ -92,6 +94,6 @@ class TestRedisCache(BaseCacheTest):
             self.redis.flushall()
             self.cache = cache.RedisCache(self.redis, prefix='cache_test')
         except ImportError:
-            print "Please install redis to test Redis cache implemntation"
+            print("Please install redis to test Redis cache implementation")
             self.redis = None
             self.cache = cache.MemoryCache()
